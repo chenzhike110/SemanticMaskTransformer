@@ -1,0 +1,57 @@
+name: Graph RQVAE
+
+model:
+  target: modules.graph.grqvae.GRQVAE
+  params:
+    group_num: 5
+    group_dim: 1
+    input_dim: 9 # 6d rotation and 3d position
+    hidden_dims: [16, 32]
+    num_quantizers: 8
+    codebook_size: 256  # num of codebook
+    codebook_dim: 32
+    output_dim: 6   # 6d rotation
+    num_nodes: 52   # smplh joints num
+    unique: true
+    use_cosine_codebook: false
+    quantize_dropout: true
+
+logger:
+  project: qposer
+  offline: true
+  resume_id: None
+  
+train:
+  # ema_decay: 0.999
+  visualize: true
+  loss:
+      wloss_v2v: 1.0
+      wloss_rot: 1.0
+      wloss_jot: 0.5
+      wloss_jts: 2.0
+      wloss_com: 0.1
+  early_stopping:
+    monitor: val_loss
+    min_delta: 0.0
+    patience: 50
+    verbose: false
+    mode: min
+  accelerate: 'gpu'
+  device: [0]
+  warm_up_iter: 3000
+  num_workers: 12
+  batch_size: 128
+  end_epoch: 6000
+  val_frequency: 5
+  optimizer:
+    target: AdamW
+    params:
+      lr: 1e-4
+      weight_decay: 0.00001
+  lr_scheduler:
+    target: ReduceLROnPlateau
+    params:
+      verbose: false
+      factor: 0.5
+      patience: 10
+      eps: 1e-6
