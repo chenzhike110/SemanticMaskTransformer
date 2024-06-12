@@ -131,3 +131,19 @@ def get_smplh_groups(group_num, with_root=True, unique=False, return_name=False)
         return joints_index, group_index, group_names
 
     return joints_index, group_index
+
+def mirror_pose(pose):
+	"""
+	Mirror the pose data, such that the left and right limbs are swapped.
+	"""
+	smplh_left_chain = [joint for joint in SMPLH_JOINT_NAMES[:52] if 'left' in joint]
+	smplh_right_chain = [joint.replace('left', 'right') for joint in smplh_left_chain]
+	smplh_left_index = [SMPLH_JOINT_NAMES.index(joint) for joint in smplh_left_chain]
+	smplh_right_index = [SMPLH_JOINT_NAMES.index(joint) for joint in smplh_right_chain]
+
+	left_chain_pose = pose[smplh_left_index].clone()
+	pose[smplh_left_index] = pose[smplh_right_index]
+	pose[smplh_right_index] = left_chain_pose
+	pose[:, 1:3] *= -1
+      
+	return pose

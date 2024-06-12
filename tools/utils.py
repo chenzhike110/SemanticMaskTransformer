@@ -7,9 +7,8 @@ def get_obj_from_str(string, reload=False):
         importlib.reload(module_imp)
     return getattr(importlib.import_module(module, package=None), cls)
 
-def instantiate_from_config(cfg):
-    return get_obj_from_str(cfg.model.target)(cfg=cfg)
-
+def instantiate_from_params(target, params):
+    return get_obj_from_str(target)(**params)
 
 def makepath(*args, **kwargs):
     '''
